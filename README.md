@@ -69,6 +69,28 @@ cp .repo-hygiene/.github/workflows/repo-hygiene.yml .github/workflows/
 
 ---
 
+## 🌐 Escáner Centralizado (Hub Scanner)
+
+Para usuarios que gestionan múltiples repositorios en un mismo directorio padre, `repo-hygiene` incluye un **Hub Scanner**. Esta herramienta realiza comprobaciones globales ultrarrápidas (sin usar LLMs) sobre todos los repositorios hermanos en busca de deudas técnicas transversales.
+
+```bash
+# Ejecutar todas las comprobaciones en todos los repos
+python scripts/hub_scanner.py --all
+
+# Ejecutar validaciones específicas:
+python scripts/hub_scanner.py --check git       # Detecta clones duplicados del mismo remote
+python scripts/hub_scanner.py --check docker    # Detecta conflictos de puertos y versioning obsoleto
+python scripts/hub_scanner.py --check paths     # Busca rutas absolutas hardcodeadas
+python scripts/hub_scanner.py --check venv      # Revisa higiene de python venvs y pkgs pesados
+python scripts/hub_scanner.py --check caddy     # Valida integración con Caddy Hub
+python scripts/hub_scanner.py --check garbage   # Detecta archivos residuales (debug.log, wavs, etc.)
+python scripts/hub_scanner.py --check activity  # Sugiere archivar repos inactivos (+180 días)
+```
+
+La configuración del Hub se encuentra al final de `config.yaml` en la sección `hub:`.
+
+---
+
 ## Schedules
 
 | Schedule | Cuándo | Tareas |

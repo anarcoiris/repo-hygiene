@@ -189,3 +189,52 @@ tasks:
       data: docs_full_audit.json
     actions:
       open_issue_if: P2_or_above
+
+# ── CONFIGURACIÓN DEL HUB SCANNER (CENTRALIZADO) ──────────────
+hub:
+  scan_root: ".."                      # Directorio superior por defecto
+  exclude_dirs:
+    - "Archive_Legacy"
+    - "Libraries"
+    - "Santi"
+    - ".reports"
+  sensitive_path_patterns:
+    - 'C:\\Users\\soyko'
+    - 'c:\\Users\\soyko'
+  heavyweight_packages:
+    - "torch"
+    - "tensorflow"
+    - "TTS"
+    - "onnxruntime"
+    - "sentence-transformers"
+  caddy_hub_path: "../caddy-hub"
+
+# ── CONFIGURACIÓN DEL REVISOR DE IA Y DAEMON ──────────────────
+ai_review:
+  ollama_url: "http://localhost:11435"   # Puerto local configurado por el usuario
+  model: "qwen2.5-coder:7b-instruct"
+  num_ctx: 32768                        # Ampliar contexto para evitar quedarse ciego
+  max_context_chars: 30000              # Límite de caracteres para evitar timeouts en CPU locales
+  max_file_size_kb: 100
+  exclude_patterns:
+    - "*.json"
+    - "*.log"
+    - ".git/*"
+    - "node_modules/*"
+    - ".venv/*"
+    - "venv/*"
+    - "__pycache__/*"
+    - "lightning_logs/*"
+    - "*logs/*"
+    - "*cache/*"
+    - "*checkpoints/*"
+    - "*trained_models/*"
+    - "artifacts/*"
+    - "data/*"
+
+daemon:
+  idle_threshold_seconds: 900           # 15 minutos de inactividad
+  poll_interval_seconds: 15
+  night_start_hour: 4                   # 4:00 AM
+  night_end_hour: 9                     # 9:00 AM
+

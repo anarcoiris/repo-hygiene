@@ -291,7 +291,7 @@ def invoke_agent(system_prompt: str, user_message: str,
 
     elif provider == "ollama":
         import requests
-        ollama_host = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
+        ollama_host = os.environ.get("OLLAMA_HOST", "http://localhost:11435")
         url = f"{ollama_host.rstrip('/')}/v1/chat/completions"
         headers = {"Content-Type": "application/json"}
         payload = {
