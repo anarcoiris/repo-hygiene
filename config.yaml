@@ -213,8 +213,8 @@ hub:
 ai_review:
   ollama_url: "http://localhost:11435"   # Puerto local configurado por el usuario
   model: "qwen2.5-coder:7b-instruct"
-  num_ctx: 32768                        # Ampliar contexto para evitar quedarse ciego
-  max_context_chars: 30000              # Límite de caracteres para evitar timeouts en CPU locales
+  num_ctx: 8192                         # Contexto reducido para evitar OOM 500 en CPU
+  max_context_chars: 15000              # Límite de caracteres estricto acorde a los 8k tokens
   max_file_size_kb: 100
   exclude_patterns:
     - "*.json"

@@ -1,0 +1,5 @@
+domains:
+  - name: Analysis & Core
+    path: scripts
+  - name: Configuration & Settings
+    path: .

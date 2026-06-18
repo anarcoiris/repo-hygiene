@@ -244,6 +244,47 @@ def check_garbage(repos: list) -> list:
         print(f"{Colors.OKGREEN}  ✓ No se encontraron archivos basura en la raíz.{Colors.ENDC}")
     return findings
 
+def check_file_bloat_and_binaries(repos: list) -> list:
+    print(f"\n{Colors.OKBLUE}=== Escáner de Binarios, Logs y Archivos Pesados ==={Colors.ENDC}")
+    findings = []
+    
+    bin_extensions = {'.exe', '.dll', '.so', '.dylib', '.class', '.o', '.bin', '.pkl', '.h5', '.pt', '.pth'}
+    
+    for repo in repos:
+        for root, dirs, files in os.walk(repo):
+            dirs[:] = [d for d in dirs if d not in ('.git', '.venv', 'venv', 'node_modules', '__pycache__')]
+            for file in files:
+                filepath = Path(root) / file
+                
+                # Check file size (> 50MB)
+                try:
+                    size_mb = filepath.stat().st_size / (1024 * 1024)
+                    if size_mb > 50:
+                        rel_path = filepath.relative_to(repo.parent)
+                        msg = f"[BLOAT] Archivo excesivamente grande ({size_mb:.1f} MB): {rel_path}"
+                        print(f"{Colors.WARNING}  {msg}{Colors.ENDC}")
+                        findings.append(msg)
+                except Exception:
+                    pass
+                
+                # Check unignored logs
+                if file.endswith('.log'):
+                    rel_path = filepath.relative_to(repo.parent)
+                    msg = f"[LOGS] Archivo de log detectado en árbol de trabajo: {rel_path}"
+                    print(f"{Colors.WARNING}  {msg}{Colors.ENDC}")
+                    findings.append(msg)
+                
+                # Check compiled binaries
+                if filepath.suffix.lower() in bin_extensions:
+                    rel_path = filepath.relative_to(repo.parent)
+                    msg = f"[BINARY] Posible archivo binario o pesos de IA en árbol fuente: {rel_path}"
+                    print(f"{Colors.WARNING}  {msg}{Colors.ENDC}")
+                    findings.append(msg)
+
+    if not findings:
+        print(f"{Colors.OKGREEN}  ✓ No se detectaron binarios innecesarios, logs sueltos ni archivos sobredimensionados.{Colors.ENDC}")
+    return findings
+
 def check_activity(repos: list) -> list:
     print(f"\n{Colors.OKBLUE}=== Auditoría de Actividad (Recomendaciones de Archivo) ==={Colors.ENDC}")
     findings = []
@@ -279,7 +320,7 @@ def main():
 
     parser = argparse.ArgumentParser(description="Multi-Repo Hub Scanner for repo-hygiene")
     parser.add_argument("--all", action="store_true", help="Run all checks")
-    parser.add_argument("--check", choices=["git", "paths", "venv", "docker", "caddy", "garbage", "activity"], 
+    parser.add_argument("--check", choices=["git", "paths", "venv", "docker", "caddy", "garbage", "bloat", "activity"], 
                         help="Run a specific check")
     parser.add_argument("--root", type=str, help="Override root directory to scan")
     parser.add_argument("--repo", type=str, help="Scan only a specific repository directory (absolute or relative to root/cwd)")
@@ -348,6 +389,8 @@ def main():
         all_findings.extend(check_caddy_integration(repos, caddy_path))
     if args.all or args.check == "garbage" or not any([args.all, args.check]):
         all_findings.extend(check_garbage(repos))
+    if args.all or args.check == "bloat" or not any([args.all, args.check]):
+        all_findings.extend(check_file_bloat_and_binaries(repos))
     if args.all or args.check == "activity" or not any([args.all, args.check]):
         all_findings.extend(check_activity(repos))
         

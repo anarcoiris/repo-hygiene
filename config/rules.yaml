@@ -1,0 +1,7 @@
+rules:
+  python_version: "3.10"
+  venv_required: true
+  max_function_lines: 80
+  banned_imports:
+    - os.system
+    - subprocess.Popen
